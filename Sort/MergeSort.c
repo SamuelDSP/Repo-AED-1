@@ -2,63 +2,66 @@
 #include <stdlib.h>
 #include <time.h>
 
-void gerarVetorAleatorio(int *vetor, int tamanho) {
+void gerar_array_aleatorio(int *array, int tamanho) {
     for (int i = 0; i < tamanho; i++) {
-        vetor[i] = rand() % 100000;
+        array[i] = rand() % 100000;
     }
 }
 
-void mesclar(int *vetor, int inicio, int meio, int fim) {
-    int tamanhoEsquerda = meio - inicio + 1;
-    int tamanhoDireita = fim - meio;
+void merge(int *array, int inicio, int meio, int fim) {
+    int tamanho_esq = meio - inicio + 1;
+    int tamanho_dir = fim - meio;
+    int esquerda[tamanho_esq], direita[tamanho_dir];
 
-    int *esquerda = (int *)malloc(tamanhoEsquerda * sizeof(int));
-    int *direita = (int *)malloc(tamanhoDireita * sizeof(int));
-
-    for (int i = 0; i < tamanhoEsquerda; i++) esquerda[i] = vetor[inicio + i];
-    for (int i = 0; i < tamanhoDireita; i++) direita[i] = vetor[meio + 1 + i];
+    for (int i = 0; i < tamanho_esq; i++) {
+        esquerda[i] = array[inicio + i];
+    }
+    for (int i = 0; i < tamanho_dir; i++) {
+        direita[i] = array[meio + 1 + i];
+    }
 
     int i = 0, j = 0, k = inicio;
-    while (i < tamanhoEsquerda && j < tamanhoDireita) {
-        if (esquerda[i] <= direita[j]) vetor[k++] = esquerda[i++];
-        else vetor[k++] = direita[j++];
+    while (i < tamanho_esq && j < tamanho_dir) {
+        if (esquerda[i] <= direita[j]) {
+            array[k++] = esquerda[i++];
+        } else {
+            array[k++] = direita[j++];
+        }
     }
-    while (i < tamanhoEsquerda) vetor[k++] = esquerda[i++];
-    while (j < tamanhoDireita) vetor[k++] = direita[j++];
-
-    free(esquerda);
-    free(direita);
+    while (i < tamanho_esq) {
+        array[k++] = esquerda[i++];
+    }
+    while (j < tamanho_dir) {
+        array[k++] = direita[j++];
+    }
 }
 
-void mergeSort(int *vetor, int inicio, int fim) {
+void merge_sort(int *array, int inicio, int fim) {
     if (inicio < fim) {
         int meio = inicio + (fim - inicio) / 2;
-        mergeSort(vetor, inicio, meio);
-        mergeSort(vetor, meio + 1, fim);
-        mesclar(vetor, inicio, meio, fim);
+        merge_sort(array, inicio, meio);
+        merge_sort(array, meio + 1, fim);
+        merge(array, inicio, meio, fim);
     }
 }
 
 int main() {
-    int tamanhos[] = {50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000};
-    int quantidadeTamanhos = sizeof(tamanhos) / sizeof(tamanhos[0]);
+    int n, *array;
+    clock_t inicio, fim;
+    double tempo;
 
-    srand(time(NULL));
+    for (n = 20000; n <= 400000; n += 20000) {
+        array = (int *)malloc(n * sizeof(int));
+        gerar_array_aleatorio(array, n);
 
-    printf("tamanho,MergeSort\n");
-    for (int i = 0; i < quantidadeTamanhos; i++) {
-        int tamanho = tamanhos[i];
-        int *vetor = (int *)malloc(tamanho * sizeof(int));
-        gerarVetorAleatorio(vetor, tamanho);
+        inicio = clock();
+        merge_sort(array, 0, n - 1);
+        fim = clock();
 
-        clock_t inicio = clock();
-        mergeSort(vetor, 0, tamanho - 1);
-        clock_t fim = clock();
-        double tempoMerge = (double)(fim - inicio) / CLOCKS_PER_SEC;
+        tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+        printf("n=%d, tempo=%.6f segundos\n", n, tempo);
 
-        printf("%d,%.6f\n", tamanho, tempoMerge);
-
-        free(vetor);
+        free(array);
     }
 
     return 0;
