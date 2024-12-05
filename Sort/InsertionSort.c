@@ -2,44 +2,41 @@
 #include <stdlib.h>
 #include <time.h>
 
-void gerarVetorAleatorio(int *vetor, int tamanho) {
+void gerar_array_aleatorio(int *array, int tamanho) {
     for (int i = 0; i < tamanho; i++) {
-        vetor[i] = rand() % 100000;
+        array[i] = rand() % 100000;
     }
 }
 
-void insertionSort(int *vetor, int tamanho) {
+void insertion_sort(int *array, int tamanho) {
     for (int i = 1; i < tamanho; i++) {
-        int chave = vetor[i];
+        int chave = array[i];
         int j = i - 1;
-        while (j >= 0 && vetor[j] > chave) {
-            vetor[j + 1] = vetor[j];
+        while (j >= 0 && array[j] > chave) {
+            array[j + 1] = array[j];
             j--;
         }
-        vetor[j + 1] = chave;
+        array[j + 1] = chave;
     }
 }
 
 int main() {
-    int tamanhos[] = {50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000};
-    int quantidadeTamanhos = sizeof(tamanhos) / sizeof(tamanhos[0]);
+    int n, *array;
+    clock_t inicio, fim;
+    double tempo;
 
-    srand(time(NULL));
+    for (n = 20000; n <= 400000; n += 20000) {
+        array = (int *)malloc(n * sizeof(int));
+        gerar_array_aleatorio(array, n);
 
-    printf("tamanho,InsertionSort\n");
-    for (int i = 0; i < quantidadeTamanhos; i++) {
-        int tamanho = tamanhos[i];
-        int *vetor = (int *)malloc(tamanho * sizeof(int));
-        gerarVetorAleatorio(vetor, tamanho);
+        inicio = clock();
+        insertion_sort(array, n);
+        fim = clock();
 
-        clock_t inicio = clock();
-        insertionSort(vetor, tamanho);
-        clock_t fim = clock();
-        double tempoInsertion = (double)(fim - inicio) / CLOCKS_PER_SEC;
+        tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+        printf("n=%d, tempo=%.6f segundos\n", n, tempo);
 
-        printf("%d,%.6f\n", tamanho, tempoInsertion);
-
-        free(vetor);
+        free(array);
     }
 
     return 0;
